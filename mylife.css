@@ -1,0 +1,398 @@
+/* MyLife hub v1, "Emergency Broadcast" look (DESIGN_SYSTEM_T4_2026-10-22.md wins over the T4 board).
+   Tokens are CSS variables; radius 0, no shadows, no glow; the only gradients are scanlines and hazard stripes. */
+:root{
+  --bg:#050404; --surface:#140E0D; --surface-2:#1E1614; --line:#3A2E2B;
+  --text:#F4ECE6; --text-2:#B8ADAA; --text-3:#A39893; --muted:#8C8380;
+  --accent:#F2503F; --on-accent:#080404; --alert:#FF4B3E; --on-alert:#080404; --ok:#9BE58A; --warn:#FFB23F;
+  --f-head:'Oswald','Arial Narrow','Helvetica Neue',Arial,sans-serif;
+  --f-kanji:'Noto Serif JP','Yu Mincho','Hiragino Mincho ProN','MS Mincho',serif;
+  --f-mono:'Share Tech Mono',ui-monospace,Consolas,'Courier New',monospace;
+}
+*{box-sizing:border-box;border-radius:0;box-shadow:none}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--f-head);font-size:16px;line-height:1.35;-webkit-text-size-adjust:100%}
+a{color:var(--text);text-decoration:none}
+a:hover{color:#FFFFFF}
+a:focus-visible,button:focus-visible{outline:2px solid var(--text);outline-offset:2px}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer;text-align:left}
+[lang="ja"]{font-family:var(--f-kanji);font-weight:900}
+.mono{font-family:var(--f-mono);font-size:11px;line-height:13px;letter-spacing:.08em;text-transform:uppercase}
+
+/* The phone frame: one column, 390px wide on a phone; centred on a wider screen. */
+.screen{max-width:430px;min-height:100vh;margin:0 auto;display:flex;flex-direction:column;background:var(--bg)}
+main{flex:1 0 auto;display:flex;flex-direction:column;padding:12px 20px 0}
+
+/* Masthead: full (hub home), compact (every other screen). */
+.mast{flex:none;background:var(--accent);color:var(--on-accent);padding:36px 20px 12px;display:flex;flex-direction:column}
+.mast .strip{display:flex;justify-content:space-between;white-space:nowrap}
+.mast .rule{height:2px;background:var(--on-accent);margin:7px 0 6px}
+.mast .kanji-row{height:160px;display:flex;justify-content:space-between;align-items:stretch}
+.mast .kanji-box{position:relative;width:296px;height:160px;overflow:hidden}
+.mast .kanji{position:absolute;left:-3px;top:-12px;font-size:140px;line-height:1;letter-spacing:-.03em;white-space:nowrap;transform:scaleY(1.2);transform-origin:left top}
+.mast .scan{position:absolute;left:0;top:0;display:block}
+.mast .scan rect{fill:var(--accent)}
+.mast .side{writing-mode:vertical-rl;white-space:nowrap;letter-spacing:.18em}
+.mast h1{margin:6px 0 0;font-weight:700;font-size:34px;line-height:1;letter-spacing:.01em;white-space:nowrap;text-transform:uppercase}
+.mast .sub{margin-top:7px;display:flex;justify-content:space-between;white-space:nowrap;letter-spacing:.12em}
+.mast.compact{height:128px;padding-bottom:0}
+.mast.compact .rule{margin:4px 0 0}
+.mast.compact .kanji-row{height:73px;align-items:center}
+.mast.compact .kanji-box{width:150px;height:73px}
+.mast.compact .kanji{top:-1px;font-size:60px}
+.mast.compact .names{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:4px;text-align:right}
+.mast.compact .app{font-weight:700;font-size:26px;line-height:1;letter-spacing:.02em;white-space:nowrap}
+/* STANDBY: surface-2 fill, kanji and labels in accent, scanlines cut in surface-2, nothing blinks. */
+.mast.standby{background:var(--surface-2);color:var(--accent)}
+.mast.standby .rule{background:var(--accent)}
+.mast.standby .scan rect{fill:var(--surface-2)}
+
+.hazard{flex:none;height:20px;border-top:4px solid var(--bg);background:repeating-linear-gradient(-45deg,var(--accent) 0 11px,var(--bg) 11px 22px);background-clip:content-box}
+.hazard.thin{height:6px;border-top:0}
+
+/* Directive card and its quiet stand-ins. */
+.directive{flex:none;display:flex;flex-direction:column;min-height:44px}
+.directive .label{display:flex;justify-content:space-between;color:var(--accent);letter-spacing:.12em}
+.directive .l1{margin-top:6px;font-weight:700;font-size:32px;line-height:1;letter-spacing:.01em;text-transform:uppercase}
+.directive .hero{font-weight:700;font-size:64px;line-height:.9;text-transform:uppercase;overflow-wrap:anywhere}
+.directive .route{margin-top:6px;font-size:12px;line-height:14px;letter-spacing:.1em;color:var(--text-3)}
+.directive .route b{font-weight:400;color:var(--accent)}
+.directive .done{margin-top:8px;font-weight:700;font-size:28px;line-height:1.05;color:var(--text-2);text-transform:uppercase}
+.directive .body{margin-top:8px;font-weight:500;font-size:16px;line-height:22px;color:var(--text-2)}
+.empty .nosig{color:var(--text-3)}
+.empty .say{margin-top:6px;font-weight:500;font-size:20px;line-height:1.2}
+.empty .hint{margin-top:4px;font-weight:400;font-size:16px;line-height:1.35;color:var(--text-3)}
+
+/* Rows: list row (52px+), the brief row, read-only rows. */
+.row{flex:none;min-height:52px;background:var(--surface);border-left:4px solid var(--accent);padding:0 14px 0 12px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.row > span:first-child{white-space:nowrap}
+.row .name{font-weight:700;font-size:19px;line-height:1;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.row .val{color:var(--text-2);text-align:right}
+.row .chev{font-family:var(--f-mono);font-size:16px;line-height:16px;color:var(--accent)}
+a.row:active{background:var(--surface-2)}
+.row.readonly{min-height:52px}
+.gap{height:10px;flex:none}
+.sect{flex:none;min-height:44px;padding-bottom:8px;display:flex;align-items:flex-end;justify-content:space-between;color:var(--text-3);letter-spacing:.1em;white-space:nowrap}
+.sect.plain{min-height:0;padding:14px 0 8px}
+
+/* Status tiles: 2 columns, 6px gap, 56px tall. */
+.tiles{flex:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:56px;gap:6px}
+.tile{height:56px;background:var(--surface);border-left:4px solid var(--accent);padding:9px 10px 8px;display:flex;flex-direction:column;justify-content:space-between;min-width:0}
+.tile .top{display:flex;justify-content:space-between;align-items:center;gap:6px;letter-spacing:.06em}
+.tile .num{color:var(--accent);display:flex;align-items:center;gap:6px}
+.tile .val{color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .dot{color:var(--ok)}
+.tile .bottom{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.tile .tname{font-weight:700;font-size:20px;line-height:1;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .sig{font-size:11px;line-height:1}
+.tile.stale{background:var(--alert);color:var(--on-alert);border-left-color:var(--on-alert)}
+.tile.stale .num,.tile.stale .val{color:var(--on-alert)}
+.tile.offline{border:1px dashed var(--muted);padding:8px 9px 7px 13px}
+.tile.offline .tname{color:var(--text-2)}
+.tile.unknown{border-left-color:var(--line)}
+
+/* Guide rows (Hub05): two lines, 54px. */
+.grow{flex:none;min-height:54px;background:var(--surface);border-left:4px solid var(--accent);padding:7px 12px 7px 10px;display:flex;flex-direction:column;justify-content:center;gap:4px}
+.grow .l1{display:flex;align-items:baseline;gap:7px}
+.grow .num{font-family:var(--f-mono);font-size:11px;color:var(--accent);letter-spacing:.06em}
+.grow .gname{font-weight:700;font-size:19px;line-height:1;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.grow .gk{font-size:12px;color:var(--text-3)}
+.grow .tag{color:var(--text-3)}
+.grow .spacer{flex:1}
+.grow .state{font-family:var(--f-mono);font-size:13px;line-height:13px;letter-spacing:.06em;color:var(--text-2);white-space:nowrap}
+.grow .chev{font-family:var(--f-mono);font-size:13px;color:var(--accent)}
+.grow .l2{color:var(--text-3)}
+.grow .l2 b{font-weight:400;color:var(--text-2)}
+.grow.unknown{border-left-color:var(--line)}
+.grow.stale{background:var(--alert);color:var(--on-alert);border-left-color:var(--on-alert)}
+.grow.stale .num,.grow.stale .gk,.grow.stale .tag,.grow.stale .state,.grow.stale .chev,.grow.stale .l2,.grow.stale .l2 b{color:var(--on-alert)}
+.grow.offline{border:1px dashed var(--muted);padding:6px 11px 6px 13px}
+.grow.offline .gname{color:var(--text-2)}
+.stack{display:flex;flex-direction:column;gap:4px}
+
+/* Blocks: alert, quiet notice, readout. */
+.block{flex:none;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.block.alert{background:var(--alert);color:var(--on-alert)}
+.block.calm{background:var(--surface);border:1px solid var(--line)}
+.block.dashed{background:var(--surface);border:1px dashed var(--muted)}
+.block .head{display:flex;justify-content:space-between;align-items:center}
+.block .line{font-weight:500;font-size:18px;line-height:1.2}
+.readout{flex:none;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-top:12px}
+.readout .unit{color:var(--text-3)}
+.readout .big{font-weight:700;font-size:40px;line-height:1;color:var(--text-2);text-transform:uppercase}
+.readout .ident{text-align:right}
+.readout .ident .gname{font-weight:700;font-size:20px;letter-spacing:.06em;text-transform:uppercase}
+
+/* Buttons: 52px+, square, uppercase Oswald 700 20px. A pending link is drawn but is not a link. */
+.btn{flex:none;min-height:52px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;font-family:var(--f-head);font-weight:700;font-size:20px;letter-spacing:.08em;text-transform:uppercase;text-align:center;padding:0 12px}
+.btn.primary{background:var(--accent);color:var(--on-accent)}
+.btn.secondary{border:2px solid var(--accent);color:var(--accent)}
+.btn.pending{border:1px dashed var(--muted);color:var(--text-2);cursor:default;flex-direction:column;gap:2px}
+.btn.pending small{font-family:var(--f-mono);font-weight:400;font-size:11px;line-height:13px;letter-spacing:.08em;color:var(--warn)}
+.pend{color:var(--warn)}
+
+/* Settings (Hub06). */
+.pick{flex:none;min-height:56px;width:100%;background:var(--surface);border-left:4px solid var(--sw);padding:0 12px 0 10px;display:flex;align-items:center;gap:10px}
+.pick .sw{width:24px;height:24px;background:var(--sw);flex:none}
+.pick .pname{font-weight:700;font-size:20px;letter-spacing:.06em}
+.pick .hex{color:var(--text-3)}
+.pick .onair{margin-left:auto;color:var(--accent);visibility:hidden}
+.pick .box{width:22px;height:22px;border:2px solid var(--muted);flex:none;display:flex;align-items:center;justify-content:center;color:var(--on-accent);font-family:var(--f-mono);font-size:14px}
+.pick[aria-checked="true"]{background:var(--surface-2)}
+.pick[aria-checked="true"] .onair{visibility:visible}
+.pick[aria-checked="true"] .box{background:var(--accent);border-color:var(--accent)}
+.toggle-row{flex:none;min-height:60px;width:100%;background:var(--surface);border-left:4px solid var(--accent);padding:0 12px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.toggle-row .tl{display:flex;flex-direction:column;gap:3px}
+.toggle-row .tname{font-weight:700;font-size:19px;letter-spacing:.06em}
+.toggle{width:56px;height:30px;flex:none;display:flex;align-items:center;justify-content:center;background:var(--surface);border:1px solid var(--muted);color:var(--muted);font-family:var(--f-mono);font-size:12px;letter-spacing:.08em}
+.toggle-row[aria-checked="true"] .toggle{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.note{flex:none;border-left:2px solid var(--line);padding:2px 0 2px 12px;color:var(--text-2);font-size:16px;line-height:22px}
+.toast{flex:none;min-height:36px;background:var(--accent);color:var(--on-accent);display:flex;align-items:center;justify-content:space-between;padding:0 12px;font-size:12px;line-height:14px}
+.toast[hidden]{display:none}
+
+.example{flex:none;margin-top:auto;padding:7px 0;display:flex;justify-content:space-between;color:var(--muted);white-space:nowrap}
+.testbanner{flex:none;background:var(--warn);color:var(--on-accent);padding:8px 20px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+
+/* Channel bar: 6px hazard, five 52px buttons; the current one is filled accent. */
+.bar{flex:none;position:sticky;bottom:0;background:var(--bg);display:flex;flex-direction:column}
+.bar .btns{display:flex;gap:4px;padding:6px 20px 8px}
+.bar a{flex:1 1 0;min-width:0;min-height:52px;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+.bar a .n{font-family:var(--f-mono);font-size:11px;line-height:13px;letter-spacing:.08em;color:var(--accent)}
+.bar a .s{font-weight:700;font-size:18px;line-height:1;letter-spacing:.06em}
+.bar a[aria-current="page"]{background:var(--accent);color:var(--on-accent)}
+.bar a[aria-current="page"] .n{color:var(--on-accent)}
+
+@media (max-width:359px){.mast .kanji-box{width:250px}.mast .kanji{font-size:118px}.directive .hero{font-size:52px}}
+
+/* v2: the reach labels (HOME NETWORK ONLY, PC ONLY). Appended layout only: no new colour or token. */
+.reach{display:block;font-size:11px;line-height:13px;color:var(--text-2);white-space:nowrap}
+.tile.has-reach{height:auto;min-height:56px;gap:4px}
+.btn.has-reach{flex-direction:column;gap:2px}
+.btn.has-reach .reach{color:inherit}
+.bar a.has-reach .reach{font-size:11px;line-height:13px;letter-spacing:.04em}
+.grow .reach{margin-top:2px}
+.directive .reach{margin-top:4px}
+.tiles{grid-auto-rows:minmax(56px,auto)}
+
+/* v3 look, shared by every screen since the v3 pages pass (.v3 is set by each screen's drawing; .v3home is the hub), plus the two overlays it adds to the page.
+   No new colour token: bone #F4ECE6 is --text, #080404 is --on-accent. Nothing here moves the layout: the only
+   transforms are on the ticker's text track, the kanji glitch copies and the overlays. */
+
+/* Meta line: live clock and the on-air dot. */
+.v3 .mast .meta{display:flex;align-items:center;gap:10px}
+.v3 .mast .air{display:flex;align-items:center;gap:5px}
+.v3 .mast .air .dot{display:block;width:7px;height:7px;background:currentColor;animation:v3-pulse 1.4s ease-in-out infinite}
+.v3[data-mode="alert"] .mast .air .dot{animation-duration:.6s}
+.v3[data-mode="standby"] .mast .air .dot{animation:none;opacity:.6}
+@keyframes v3-pulse{0%,100%{opacity:1}50%{opacity:.25}}
+@media (max-width:399px){.v3 .mast .brand{display:none}}
+/* "EMERGENCY BROADCAST" at 34px is wider than a 360px screen's column (it scrolled sideways by 8px in v3 too). */
+@media (max-width:379px){.v3 .mast h1{font-size:31px}.v3 .tile .tname{font-size:18px}.v3 .tile .tk{font-size:12px}}
+
+/* Kanji glitch: two copies of the kanji, sliced, flash in the last half second of the loop. The kanji stays put. */
+.v3 .mast .kanji::before,.v3 .mast .kanji::after{content:attr(data-text);position:absolute;left:0;top:0;pointer-events:none;opacity:0;clip-path:inset(0 0 100% 0)}
+.v3 .mast .kanji::before{color:var(--text);animation:v3-glitch-a 6s steps(1) infinite}
+.v3 .mast .kanji::after{color:#080404;animation:v3-glitch-b 6s steps(1) infinite}
+.v3[data-mode="alert"] .mast .kanji::before{animation:v3-glitch-a-alert 2.4s steps(1) infinite}
+.v3[data-mode="alert"] .mast .kanji::after{animation:v3-glitch-b-alert 2.4s steps(1) infinite}
+@keyframes v3-glitch-a{0%,91.6%{opacity:0;transform:none;clip-path:inset(0 0 100% 0)}92%{opacity:1;transform:translateX(-1.2%);clip-path:inset(10% 0 72% 0)}94%{opacity:1;transform:translateX(1.6%);clip-path:inset(46% 0 38% 0)}96%{opacity:1;transform:translateX(-1%);clip-path:inset(70% 0 12% 0)}98%{opacity:1;transform:translateX(1.4%);clip-path:inset(26% 0 60% 0)}100%{opacity:0}}
+@keyframes v3-glitch-b{0%,91.6%{opacity:0;transform:none;clip-path:inset(0 0 100% 0)}93%{opacity:1;transform:translateX(1.4%);clip-path:inset(30% 0 52% 0)}95%{opacity:1;transform:translateX(-1.6%);clip-path:inset(60% 0 26% 0)}97%{opacity:1;transform:translateX(1%);clip-path:inset(4% 0 84% 0)}99%{opacity:0}}
+@keyframes v3-glitch-a-alert{0%,79%{opacity:0;transform:none;clip-path:inset(0 0 100% 0)}80%{opacity:1;transform:translateX(-1.2%);clip-path:inset(10% 0 72% 0)}85%{opacity:1;transform:translateX(1.6%);clip-path:inset(46% 0 38% 0)}90%{opacity:1;transform:translateX(-1%);clip-path:inset(70% 0 12% 0)}95%{opacity:1;transform:translateX(1.4%);clip-path:inset(26% 0 60% 0)}100%{opacity:0}}
+@keyframes v3-glitch-b-alert{0%,79%{opacity:0;transform:none;clip-path:inset(0 0 100% 0)}82%{opacity:1;transform:translateX(1.4%);clip-path:inset(30% 0 52% 0)}87%{opacity:1;transform:translateX(-1.6%);clip-path:inset(60% 0 26% 0)}92%{opacity:1;transform:translateX(1%);clip-path:inset(4% 0 84% 0)}97%{opacity:0}}
+
+/* Alert: the header pulses brightness (a filter, never a transform). */
+.v3[data-mode="alert"] .mast{animation:v3-bright 1.2s ease-in-out infinite}
+@keyframes v3-bright{0%,100%{filter:brightness(1)}50%{filter:brightness(1.18)}}
+
+/* Hazard stripes march: one stripe period (22px at 45 degrees = 31.11px) per loop. */
+.v3 .hazard{animation:v3-march 1.6s linear infinite}
+.v3[data-mode="alert"] .hazard{animation-duration:.5s}
+@keyframes v3-march{from{background-position-x:0}to{background-position-x:31.11px}}
+
+/* Status ticker: a 26px strip; only its text track scrolls. */
+.v3 .ticker{flex:none;height:26px;overflow:hidden;display:flex;align-items:center;background:var(--surface);color:var(--text-2);border-bottom:1px solid var(--line)}
+.v3 .ticker .track{display:flex;flex:none;white-space:nowrap;animation:v3-tick 30s linear infinite}
+.v3 .ticker .seg{flex:none;padding-right:0}
+.v3 .ticker [lang="ja"]{font-size:11px;line-height:13px;letter-spacing:.1em}
+.v3[data-mode="alert"] .ticker{background:var(--alert);color:var(--on-alert);border-bottom-color:var(--on-alert)}
+.v3[data-mode="standby"] .ticker{background:var(--surface-2);color:var(--accent)}
+@keyframes v3-tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* Directive: blinking block cursor after the big word; no directive is one dashed row. */
+.v3 .directive .blk{display:inline-block;width:.4em;height:.74em;margin-left:.1em;background:currentColor;animation:v3-blink 1s steps(1) infinite}
+.v3 .directive.nodir{min-height:44px;justify-content:center;padding:0 12px;border:1px dashed var(--muted);color:var(--text-2);letter-spacing:.12em}
+@keyframes v3-blink{50%{opacity:0}}
+
+/* Channels label: the reporting count. */
+.v3 .sect .count{display:flex;align-items:center;gap:6px}
+.v3 .sect .sq{display:block;width:7px;height:7px;background:var(--muted)}
+
+/* Tiles: number, name, small kanji, optional boxed flag. Hover widens the accent edge (padding gives the width
+   back, so the text stays put); press fills with the accent and a scanline texture, 1px down. */
+.v3 .tile{height:auto;min-height:56px;gap:6px;position:relative;top:0}
+.v3 .tile.unknown{border-left-color:var(--accent)}
+.v3 .tile .top{min-height:14px}
+.v3 .tile .flag{font-size:10px;line-height:12px;letter-spacing:.1em;padding:0 4px;border:1px solid var(--text-3);color:var(--text-2);white-space:nowrap}
+.v3 .tile .bottom{align-items:baseline}
+.v3 .tile .tk{flex:none;font-size:13px;line-height:1;color:var(--text-3)}
+.v3 .tile.nolink{border:1px dashed var(--muted);padding:8px 9px 7px 13px}
+.v3 .tile.nolink .flag{border-style:dashed}
+.v3 .tile.stale .tk,.v3 .tile.stale .flag{color:var(--on-alert);border-color:var(--on-alert)}
+@media (hover:hover){
+  .v3 .tile:hover{border-left-width:10px;padding-left:4px}
+  .v3 .tile.nolink:hover{padding-left:4px}
+  .v3 .tile:hover .tk{color:var(--accent)}
+}
+.v3 .tile:active{top:1px;background-color:var(--accent);background-image:repeating-linear-gradient(0deg,rgba(0,0,0,.22) 0 1px,transparent 1px 3px);color:var(--on-accent);border-left-color:var(--on-accent)}
+.v3 .tile:active .num,.v3 .tile:active .tk,.v3 .tile:active .tname,.v3 .tile:active .flag{color:var(--on-accent);border-color:var(--on-accent)}
+
+/* Channel change: the tapped link flashes the accent for 180ms. */
+.v3 .zap{animation:v3-zap 180ms steps(1)}
+.v3 .zap *{animation:v3-zap-text 180ms steps(1)}
+@keyframes v3-zap{0%,100%{background-color:var(--accent);color:var(--on-accent)}}
+@keyframes v3-zap-text{0%,100%{color:var(--on-accent)}}
+
+/* Faint flicker of the whole screen. */
+.screen.v3{animation:v3-flicker 5s steps(1) infinite}
+@keyframes v3-flicker{0%,100%{opacity:1}31%{opacity:.965}32%{opacity:1}72%{opacity:.98}73.5%{opacity:1}}
+
+/* CRT overlay above everything, never in the way of a tap. */
+.crt{position:fixed;inset:0;z-index:50;pointer-events:none;overflow:hidden}
+.crt i{position:absolute;display:block}
+.crt .scanl{inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.22) 0 1px,transparent 1px 3px);mix-blend-mode:multiply}
+.crt .grain{inset:0;opacity:.07;background-repeat:repeat;background-size:180px 180px;animation:v3-grain .5s steps(4) infinite}
+.crt .vig{inset:0;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.55) 100%)}
+.crt .band{left:0;right:0;height:22%;top:-22%;background:linear-gradient(180deg,transparent,rgba(244,236,230,.045) 50%,transparent);animation:v3-band 7s linear infinite}
+@keyframes v3-grain{from{background-position:0 0}to{background-position:144px 96px}}
+@keyframes v3-band{from{top:-22%}to{top:100%}}
+
+/* Slice: seven full-width bars, each on for part of 200ms, 18ms apart; JS sets their place and colour. */
+.slice{position:fixed;inset:0;z-index:60;pointer-events:none;overflow:hidden}
+.slice i{position:absolute;left:0;right:0;display:block;opacity:0}
+.slice.go i{animation:v3-slice 200ms steps(1) both}
+@keyframes v3-slice{0%{opacity:0}15%{opacity:1}55%,100%{opacity:0}}
+
+/* Effects off: no overlays, no glitch, no pulse, no march, no flicker. The ticker, cursor and dot keep moving. */
+html.fx-off .crt,html.fx-off .slice{display:none}
+html.fx-off .v3 .mast .kanji::before,html.fx-off .v3 .mast .kanji::after{animation:none;opacity:0}
+html.fx-off .screen.v3,html.fx-off .v3 .mast,html.fx-off .v3 .hazard{animation:none}
+
+/* Reduced motion (the device's setting or MyLife's own): everything stops. Scanlines and grain stay as still
+   textures; the rolling band goes. */
+html.rm .screen.v3,html.rm .v3 *,html.rm .v3 *::before,html.rm .v3 *::after,html.rm .crt i,html.rm .slice i{animation:none !important}
+html.rm .crt .band{display:none}
+@media (prefers-reduced-motion:reduce){
+  .screen.v3,.v3 *,.v3 *::before,.v3 *::after,.crt i,.slice i{animation:none !important}
+  .crt .band{display:none}
+}
+
+/* v3 pages: the shared pieces for every screen (header sizing, back row, footer, Guide rows, channel template, Brief,
+   Settings). No transform moves the layout; presses use top:1px like the home tiles. One new colour: STALE #E8B04A,
+   for the status square only. */
+.screen.v3{container-type:inline-size}
+/* Header kanji in container units of the 430px-max screen: 36cqw is the home's 140px at 390px. Three characters
+   are 24.5cqw, sitting low in the same box. */
+.v3 .mast .kanji-row{height:41cqw}
+.v3 .mast .kanji-box{flex:1 1 auto;width:auto;height:100%;min-width:0}
+.v3 .mast .kanji{font-size:36cqw;top:-3cqw}
+.v3 .mast .kanji.k3{font-size:24.5cqw;top:10.8cqw}
+.v3 .mast .scan{width:100%;height:100%}
+.v3 .mast .side{flex:none}
+@media (max-width:349px){.v3 .mast .strip{font-size:10px;letter-spacing:.06em}.v3 .mast h1{font-size:28px}.v3 .mast .meta{gap:6px}.v3 .chrow .gk{display:none}}
+
+/* Effects off also holds the ticker (the switch reads CRT, GLITCH, TICKER, SLICE). */
+html.fx-off .v3 .ticker .track{animation:none}
+
+/* Status squares: OK, STALE, OFFLINE (accent), NO READING (grey). */
+.v3 .sq{display:inline-block;width:7px;height:7px;background:var(--muted);flex:none}
+.v3 .sq.s-ok{background:var(--ok)}
+.v3 .sq.s-stale{background:#E8B04A}
+.v3 .sq.s-off{background:var(--accent)}
+.v3 .sq.s-none{background:var(--muted)}
+.v3 .count{display:flex;align-items:center;gap:6px}
+.v3 .sect.first{padding-top:6px}
+
+/* Boxed flags (HOME, PC, NO LINK). */
+.v3 .flag{font-size:10px;line-height:12px;letter-spacing:.1em;padding:0 4px;border:1px solid var(--text-3);color:var(--text-2);white-space:nowrap;flex:none}
+.v3 .flag.dashed{border-style:dashed}
+
+/* Back row: ‹ 00 HUB, at least 36px tall. */
+.v3 .backrow{flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:36px;margin:-6px 0 4px;color:var(--text-3)}
+.v3 .back{display:flex;align-items:center;gap:6px;min-height:36px;font-size:12px;line-height:14px;color:var(--text);padding-right:10px}
+.v3 .back b{font-weight:400;color:var(--accent);font-size:14px}
+
+/* Footer: END OF BROADCAST and the way to Settings. */
+.v3 .example{align-items:center;padding:4px 0;margin-top:auto}
+.v3 .exnote{flex:none;margin-top:auto;padding-top:10px;color:var(--muted)}
+.v3 .exnote + .example{margin-top:0}
+.v3 .setlink{display:flex;align-items:center;gap:6px;min-height:36px;color:var(--text-2);padding-left:10px}
+.v3 .setlink [lang="ja"]{font-size:12px;line-height:1}
+.v3 .setlink b{font-weight:400;color:var(--accent);font-size:14px}
+.v3 .setlink.here{color:var(--accent)}
+
+/* Rows (the brief row style): hover widens the accent edge 4px to 10px (the padding gives it back, so the text
+   stays put); press fills with the accent, dark text and the scanline texture, 1px down. */
+.v3 a.row,.v3 .chrow{position:relative;top:0}
+.v3 .chrow{flex:none;min-height:52px;background:var(--surface);border-left:4px solid var(--accent);padding:0 14px 0 12px;display:flex;align-items:center;gap:8px;min-width:0}
+.v3 .chrow .num{color:var(--accent);flex:none}
+.v3 .chrow .gname{font-weight:700;font-size:19px;line-height:1;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.v3 .chrow .gk{font-size:12px;line-height:1;color:var(--text-3);white-space:nowrap}
+.v3 .chrow .spacer{flex:1 1 0;min-width:0}
+.v3 .chrow .when{color:var(--text-2);white-space:nowrap}
+.v3 .chrow .chev{font-family:var(--f-mono);font-size:16px;line-height:16px;color:var(--accent)}
+.v3 .chrow.nolink{border:1px dashed var(--muted);padding:0 13px 0 15px}
+.v3 .key{flex:none;display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;color:var(--text-3)}
+.v3 .key > span{display:flex;align-items:center;gap:6px}
+@media (hover:hover){
+  .v3 a.row:hover,.v3 .chrow:hover{border-left-width:10px;padding-left:6px}
+  .v3 .chrow.nolink:hover{border-left-width:1px;padding-left:15px}
+  .v3 .chrow:hover .gk{color:var(--accent)}
+}
+.v3 a.row:active,.v3 .chrow:active{top:1px;background-color:var(--accent);background-image:repeating-linear-gradient(0deg,rgba(0,0,0,.22) 0 1px,transparent 1px 3px);color:var(--on-accent);border-left-color:var(--on-accent)}
+.v3 a.row:active *,.v3 .chrow:active *{color:var(--on-accent) !important;border-color:var(--on-accent)}
+.v3 a.row:active .sq,.v3 .chrow:active .sq{background:var(--on-accent)}
+
+/* Channel screen: readout of three cells, the Gym directive, the OPEN button and the dashed rows. */
+.v3 .cells{flex:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+.v3 .cell{background:var(--surface);padding:9px 10px 10px;display:flex;flex-direction:column;gap:5px;min-width:0}
+.v3 .cell .ck{font-size:10px;line-height:12px;color:var(--text-3);white-space:nowrap}
+.v3 .cell .cv{font-weight:700;font-size:18px;line-height:1;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v3 .gdir{flex:none;display:flex;flex-direction:column;gap:6px;background:var(--surface);border-left:4px solid var(--accent);padding:10px 12px 12px}
+.v3 .gdir .gl{color:var(--accent);letter-spacing:.12em}
+.v3 .gdir .gt{font-weight:700;font-size:24px;line-height:1.05;text-transform:uppercase;overflow-wrap:anywhere}
+.v3 .act{flex:none;position:relative;top:0;min-height:68px;width:100%;background:var(--accent);color:var(--on-accent);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0 12px;text-align:center}
+.v3 .act .an{font-weight:700;font-size:27px;line-height:1;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.v3 .act .as{color:inherit}
+@media (hover:hover){.v3 .act:hover{background-color:var(--text);color:var(--on-accent)}}
+.v3 .act:active{top:1px;background-color:var(--accent);background-image:repeating-linear-gradient(0deg,rgba(0,0,0,.22) 0 1px,transparent 1px 3px);color:var(--on-accent)}
+.v3 .dash{flex:none;min-height:56px;border:1px dashed var(--muted);display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 14px}
+.v3 .dash.big{min-height:68px}
+.v3 .dash .dl{display:flex;flex-direction:column;gap:3px;min-width:0}
+.v3 .dash .dn{font-weight:700;font-size:19px;line-height:1;letter-spacing:.06em;text-transform:uppercase;color:var(--text-2);white-space:nowrap}
+.v3 .dash .dn.small{font-family:var(--f-mono);font-weight:400;font-size:11px;line-height:13px;letter-spacing:.08em;white-space:normal}
+.v3 .dash .ds{color:var(--text-3)}
+.v3 .dash .dr{color:var(--muted);white-space:nowrap}
+
+/* Morning Brief: the directive style. */
+.v3 .bdir .label{justify-content:flex-start}
+.v3 .bdir .route{margin-top:8px}
+
+/* Settings: three swatch tiles and the switch rows. */
+.v3 .swatches{flex:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+.v3 .swatch{position:relative;min-height:64px;min-width:0;background:var(--surface);border-left:4px solid var(--sw);padding:9px 8px 9px 10px;display:flex;flex-direction:column;justify-content:space-between}
+.v3 .swatch .sn{font-weight:700;font-size:19px;line-height:1;letter-spacing:.06em}
+.v3 .swatch .sd{font-size:10px;line-height:12px;color:var(--text-3);min-height:12px}
+.v3 .swatch .box{position:absolute;bottom:8px;right:8px;width:18px;height:18px;border:2px solid var(--muted);display:flex;align-items:center;justify-content:center;color:var(--on-accent);font-family:var(--f-mono);font-size:12px;line-height:1}
+.v3 .swatch[aria-checked="true"]{background:var(--surface-2);outline:2px solid var(--sw);outline-offset:-2px}
+.v3 .swatch[aria-checked="true"] .box{background:var(--sw);border-color:var(--sw)}
+.v3 .swatch:focus-visible{outline:2px solid var(--text);outline-offset:2px}
+.v3 .toggle-row{min-height:58px}
+.v3 .toggle-row .tsub{font-size:10px;line-height:12px;color:var(--text-3)}
+
+/* v3 final (11-05). Night (standby) holds the kanji glitch still: standby means nothing blinks. */
+.v3[data-mode="standby"] .mast .kanji::before,.v3[data-mode="standby"] .mast .kanji::after{animation:none;opacity:0}
+/* Project Board cards: number, name, small kanji, one sentence. Read-only, so no hover or press state. */
+.v3 .pcard{flex:none;background:var(--surface);border-left:4px solid var(--accent);padding:11px 14px 12px 12px;display:grid;grid-template-columns:22px minmax(0,1fr) auto;column-gap:8px;row-gap:4px;align-items:baseline}
+.v3 .pcard .num{color:var(--accent);font-size:11px}
+.v3 .pcard .pname{font-weight:700;font-size:19px;line-height:1.15;letter-spacing:.06em;text-transform:uppercase;min-width:0}
+.v3 .pcard .pk{font-size:12px;line-height:1;color:var(--text-3);white-space:nowrap}
+.v3 .pcard .pline{grid-column:2 / 4;margin:0;font-family:var(--f-display);font-weight:500;font-size:15px;line-height:1.4;letter-spacing:.01em;color:var(--text-2)}

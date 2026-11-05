@@ -1,0 +1,61 @@
+<!doctype html>
+<!-- MyLife hub v1 TEST PAGE. EXAMPLE DATA ONLY: every directive, time and state here is made up, to show the
+     STALE, OFFLINE, HEALTHY and UNKNOWN tiles and the ALERT and STANDBY mastheads through the hub's own drawing code.
+     ?state=calm|alert|standby picks the mood; &screen=guide or &screen=signal&ch=04 draws those screens instead of home.
+     Nothing in the hub links here. It loads no feed.js: its example feed lives only in this file, and its taps go nowhere. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<title>MyLife · TEST · Example data</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="mylife.css">
+<style>.testbanner{align-items:center}.testlink{color:inherit;display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;padding:0 8px;border:1px solid currentColor}</style>
+</head>
+<body>
+<div class="testbanner mono" role="note">
+  <span>TEST PAGE · EXAMPLE DATA · NOT LIVE</span>
+  <span style="display:flex;gap:4px;flex-wrap:wrap"><a href="?state=calm" class="testlink">CALM</a><a href="?state=alert" class="testlink">ALERT</a><a href="?state=standby" class="testlink">STANDBY</a><a href="?state=calm&amp;screen=guide" class="testlink">GUIDE</a><a href="?state=calm&amp;screen=signal&amp;ch=04" class="testlink">SIGNAL</a></span>
+</div>
+<div class="testbanner mono" id="motionline" role="status" style="background:var(--surface);color:var(--text-2)"></div>
+<div class="screen" id="screen"></div>
+<script src="links.js"></script>
+<script src="mylife.js"></script>
+<script>
+(function () {
+  var state = (/[?&]state=(calm|alert|standby)/.exec(location.search) || [])[1] || 'calm';
+  var now = new Date(), ago = function (min) { return new Date(now - min * 60000).toISOString(); };
+  // EXAMPLE DATA: made up for this page only.
+  var example = {
+    version: 1, source: 'EXAMPLE CHECK', read_at: ago(1),
+    directive: { label: '01', line1: "LOG TODAY'S", hero: 'WORKOUT', route: '01', priority: state === 'alert' ? 'A' : 'ROUTINE', done: state === 'standby' },
+    channels: {
+      '01': { state: 'HEALTHY', check: 'EXAMPLE MONITOR', checked_at: ago(50) },
+      '02': { state: 'HEALTHY', check: 'EXAMPLE MONITOR', checked_at: ago(60) },
+      '03': { state: 'OFFLINE', check: 'EXAMPLE MONITOR', checked_at: ago(10) },
+      '04': { state: 'STALE', check: 'EXAMPLE REPORT-AGE CHECK', checked_at: ago(60), last_seen: ago(60 + 2 * 1440 + 18) }
+      // 05 and 06 are left out on purpose: they show UNKNOWN.
+    }
+  };
+  var f = MyLife.readFeed(example, now), root = document.getElementById('screen');
+  var screen = (/[?&]screen=(guide|signal)/.exec(location.search) || [])[1] || 'home';
+  var opts = { night: false };   // the test page ignores the device clock, so CALM and ALERT show at any hour
+  if (screen === 'guide') MyLife.guide(root, now, f, opts);
+  else if (screen === 'signal') MyLife.signal(root, now, f, (/[?&]ch=(\d\d)/.exec(location.search) || [])[1] || '04', opts);
+  else MyLife.home(root, now, f, { forceStandby: state === 'standby', night: false, href: function () { return '#example'; }, exampleRight: 'EXAMPLE DATA' });
+  // Taps on the example screen go nowhere (the banner's own links still switch views).
+  root.addEventListener('click', function (e) { if (e.target.closest('a')) e.preventDefault(); }, true);
+  var cur = document.querySelector('#screen .cursor'), cls = document.documentElement.classList;
+  var why = state === 'standby' ? 'STANDBY' : (MyLife.reducedMotion() ? 'REDUCED MOTION' : '');
+  // v3 look: home tiles carry no stale cursor any more, so the home screen reports motion and effects instead.
+  document.getElementById('motionline').textContent = (screen === 'home'
+    ? 'MOTION ' + (cls.contains('rm') ? 'REDUCED' : 'FULL') + ' · EFFECTS ' + (cls.contains('fx-off') ? 'OFF' : 'ON')
+    : 'STALE CURSOR: ' + (cur && cur.getAttribute('data-animated') === '1' ? 'BLINKS 4 TIMES, THEN STILL' : 'STILL (' + why + ')')) +
+    ' · MODE ' + (document.getElementById('screen').getAttribute('data-mode') || '').toUpperCase();
+})();
+</script>
+</body>
+</html>
