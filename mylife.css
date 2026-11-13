@@ -396,3 +396,52 @@ html.fx-off .v3 .ticker .track{animation:none}
 .v3 .pcard .pname{font-weight:700;font-size:19px;line-height:1.15;letter-spacing:.06em;text-transform:uppercase;min-width:0}
 .v3 .pcard .pk{font-size:12px;line-height:1;color:var(--text-3);white-space:nowrap}
 .v3 .pcard .pline{grid-column:2 / 4;margin:0;font-family:var(--f-display);font-weight:500;font-size:15px;line-height:1.4;letter-spacing:.01em;color:var(--text-2)}
+
+/* Calm Broadcast (2026-11-13): MyLife in the accepted Jellyfin r4 look. The red masthead and big kanji stay;
+   scanline slices, glitch, flicker, CRT overlay, marching hazards, the scrolling ticker and blinking dots go.
+   Headings use Bahnschrift 600 semi-condensed (Windows), falling back to Oswald 600 elsewhere. Hazard stripes
+   are kept for nothing on the hub (Jellyfin keeps them only on delete buttons). Appended only: delete this block
+   to get the v3 final look back. */
+:root{--f-head:Bahnschrift,'Oswald','Arial Narrow','Helvetica Neue',Arial,sans-serif}
+body{font-stretch:semi-condensed}
+
+/* Header: clean kanji (no scanline cuts), the hazard band under it becomes nothing; one still rule in the bar. */
+.v3 .mast .scan{display:none}
+.v3 .mast h1{font-weight:600;font-size:31px;letter-spacing:.03em}
+.mast + .hazard{display:none}
+.hazard.thin{height:2px;background:var(--accent);animation:none !important}
+
+/* Nothing moves or blinks: still on-air dot, still cursor, static ticker showing one pass of its words. */
+.v3 .mast .air .dot,.v3 .directive .blk{animation:none !important;opacity:1}
+.v3[data-mode="standby"] .mast .air .dot{opacity:.6}
+.v3 .ticker .track{display:block;flex:1 1 auto;animation:none !important;transform:none;min-width:0;padding:0 20px}
+.v3 .ticker .seg + .seg{display:none}
+.v3 .ticker .seg{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v3 .mast .kanji::before,.v3 .mast .kanji::after{content:none}
+.screen.v3,.v3 .mast,.v3 .hazard{animation:none !important}
+.crt,.slice{display:none !important}
+
+/* Lighter headings: 600 instead of 700 everywhere the heading face is used. */
+.mast .app,.directive .l1,.directive .hero,.directive .done,.row .name,.tile .tname,.grow .gname,.readout .big,
+.readout .ident .gname,.btn,.pick .pname,.toggle-row .tname,.bar a .s,.v3 .chrow .gname,.v3 .cell .cv,.v3 .gdir .gt,
+.v3 .act .an,.v3 .dash .dn,.v3 .swatch .sn,.v3 .pcard .pname{font-weight:600}
+
+/* Jellyfin-size buttons and actions (r4: 44px+, 15-17px), not 68px slabs. */
+.btn{min-height:48px;font-size:17px}
+.btn.secondary{border-width:1px}
+.v3 .act{min-height:52px}
+.v3 .act .an{font-size:21px}
+.v3 .dash.big{min-height:56px}
+.v3 .dash .dn{font-size:17px}
+
+/* Quiet hover and press: no 10px edge growth, no scanline texture; the press is a darker row. */
+@media (hover:hover){
+  .v3 .tile:hover,.v3 a.row:hover,.v3 .chrow:hover{border-left-width:4px;padding-left:10px}
+  .v3 a.row:hover,.v3 .chrow:hover{padding-left:12px}
+  .v3 .tile.nolink:hover,.v3 .chrow.nolink:hover{border-left-width:1px;padding-left:13px}
+  .v3 .tile:hover .tname,.v3 a.row:hover .name,.v3 .chrow:hover .gname{color:var(--accent)}
+}
+.v3 .tile:active,.v3 a.row:active,.v3 .chrow:active{background-color:var(--surface-2);background-image:none;color:var(--text);border-left-color:var(--accent)}
+.v3 .tile:active *,.v3 a.row:active *,.v3 .chrow:active *{color:inherit !important}
+.v3 .tile:active .num,.v3 a.row:active .chev,.v3 .chrow:active .num,.v3 .chrow:active .chev{color:var(--accent) !important}
+.v3 .act:active{background-image:none;filter:brightness(.92)}
