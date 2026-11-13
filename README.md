@@ -7,7 +7,10 @@ A phone home screen for a self-hosted home lab, styled like a late-night TV broa
   <img src="screenshots/guide.png" width="240" alt="Channel guide">
   <img src="screenshots/channel.png" width="240" alt="One channel page">
   <img src="screenshots/projects.png" width="240" alt="Project board">
+  <img src="screenshots/alert-example.png" width="240" alt="The alert mood on the test page, with made-up example data">
 </p>
+
+**In one minute:** I designed this home screen and its rules, and directed AI coding agents to build it. Its main rule is that it never pretends: if it can't verify an app's status, it says UNKNOWN instead of showing a green light. It's about 40 KB of plain JavaScript with no framework, no build step and no network calls. The [case study](CASE_STUDY.md) covers why I built it and what I learned. Open `index.html` in any browser to try it.
 
 ## What it does
 
