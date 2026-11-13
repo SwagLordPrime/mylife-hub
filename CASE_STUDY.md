@@ -2,7 +2,7 @@
 
 **Role:** designer and product owner. I wrote the screens, the rules for what the hub may claim, the look, and the acceptance checks. AI coding agents (Claude Code) wrote the code, and a separate reviewer agent (OpenAI Codex) checked each version against my spec.
 **Stack:** plain HTML, CSS and JavaScript. Local fonts. No framework, no build step, no server.
-**Status:** in daily use on my phone as the front door to my home lab.
+**Status:** live on my phone as the front door to my home lab.
 
 ## The problem
 
