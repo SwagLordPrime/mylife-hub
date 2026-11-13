@@ -3,7 +3,7 @@
 A phone home screen for a self-hosted home lab, styled like a late-night TV broadcast. One page shows today's one next step, a tile for every app in the house, and a channel guide that says which apps are reachable. It is plain HTML, CSS and JavaScript, so it opens straight from a file with no server, no build step and no framework.
 
 <p>
-  <img src="screenshots/index.png" width="240" alt="Home screen, standing by at night">
+  <img src="screenshots/index.png" width="240" alt="Home screen">
   <img src="screenshots/guide.png" width="240" alt="Channel guide">
   <img src="screenshots/channel.png" width="240" alt="One channel page">
   <img src="screenshots/projects.png" width="240" alt="Project board">
@@ -18,7 +18,7 @@ A phone home screen for a self-hosted home lab, styled like a late-night TV broa
 - **Channel Guide.** Every channel gets a row with its state (OK, STALE, OFFLINE or NO READING) and the time of its last check.
 - **Channel pages** (`signal.html?ch=01` and so on). Each page has its status and an **OPEN** button for that app.
 - **Project Board.** One plain-English line per project.
-- **Settings.** You can pick the accent colour (red, orange or gold) and turn motion and the CRT effects on or off. These settings stay in the browser's `localStorage`.
+- **Settings.** You can pick the accent colour (red, orange or gold) and turn reduced motion on or off. These settings stay in the browser's `localStorage`.
 - **The hub is honest about what it doesn't know.** It fetches nothing, posts nothing and probes nothing. A tile shows a state only when a status file (`feed.js`) supplies one with a source and a check time. If that file is missing, older than 24 hours or can't be verified, every tile reads UNKNOWN instead of guessing.
 
 ## How to run it

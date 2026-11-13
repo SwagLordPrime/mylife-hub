@@ -64,8 +64,9 @@
   }
   function motionSetting() { return store('mylife.motion') === 'reduced'; }
   function reducedMotion() { return motionSetting() || deviceReduced(); }
-  /* v3 look: Effects (CRT overlay, kanji glitch, Slice, header pulse, hazard march, flicker) on unless set off. */
-  function effectsOn() { return store('mylife.effects') !== 'off'; }
+  /* Calm Broadcast (11-13): the v3 effects (CRT overlay, kanji glitch, Slice, pulse, hazard march, flicker) are
+     retired to match the Jellyfin r4 theme, so effects are always off and Settings no longer offers the switch. */
+  function effectsOn() { return false; }
   function motionClasses() {
     var c = document.documentElement.classList;
     if (reducedMotion()) c.add('rm'); else c.remove('rm');
@@ -482,7 +483,7 @@
   function settings(root, now, f, opts) {
     opts = opts || {};
     function paint(toast) {
-      var m = moodOf(now, f, opts), k = accentKey(), reduced = motionSetting(), dev = deviceReduced(), fx = effectsOn();
+      var m = moodOf(now, f, opts), k = accentKey(), reduced = motionSetting(), dev = deviceReduced();
       var picks = [['red', 'RED', 'DEFAULT'], ['orange', 'ORANGE', ''], ['gold', 'GOLD', '']].map(function (p) {
         return '<button type="button" class="swatch" role="radio" aria-checked="' + (k === p[0]) + '" data-accent="' + p[0] + '" style="--sw:' + ACCENTS[p[0]] + '" aria-label="' + p[1].toLowerCase() + ' accent' + (p[2] ? ', the default' : '') + '">' +
           '<span class="sn">' + p[1] + '</span><span class="sd mono">' + p[2] + '</span><span class="box" aria-hidden="true">' + (k === p[0] ? '✓' : '') + '</span></button>';
@@ -495,7 +496,6 @@
         '<div class="sect plain mono first"><span><span lang="ja">色</span> · ACCENT</span><span></span></div>' +
         '<div class="swatches" role="radiogroup" aria-label="Accent">' + picks + '</div>' +
         '<div class="sect plain mono"><span><span lang="ja">動き</span> · MOTION</span><span></span></div>' +
-        sw('effects', fx, 'EFFECTS', 'CRT, GLITCH, TICKER, SLICE') + '<div style="height:4px"></div>' +
         sw('motion', reduced, 'REDUCED MOTION', 'HOLDS EVERYTHING STILL') +
         (dev ? '<div class="mono" style="margin-top:6px;color:var(--text-2)">THIS DEVICE ASKS FOR REDUCED MOTION · MYLIFE IS ALREADY STILL</div>' : '') +
         '<div class="sect plain mono"><span><span lang="ja">画面</span> · HOME SCREEN</span><span></span></div>' +
@@ -512,9 +512,6 @@
       });
       root.querySelector('#motion').addEventListener('click', function () {
         store('mylife.motion', motionSetting() ? 'full' : 'reduced'); paint(false); root.querySelector('#motion').focus();
-      });
-      root.querySelector('#effects').addEventListener('click', function () {
-        store('mylife.effects', effectsOn() ? 'off' : 'on'); paint(false); root.querySelector('#effects').focus();
       });
     }
     paint(false);
